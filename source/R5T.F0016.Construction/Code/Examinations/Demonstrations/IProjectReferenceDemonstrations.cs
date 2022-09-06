@@ -11,10 +11,14 @@ namespace R5T.F0016.Construction
 	[DemonstrationsMarker]
 	public partial interface IProjectReferenceDemonstrations : IDemonstrationsMarker
 	{
+		/// <summary>
+		/// For a root project and a target project within the recursive project references of the root project, starting at the target project, walk up the project references tree and accumulate each path from the target to the root project.
+		/// </summary>
+		/// <returns></returns>
 		public async Task GetDependencyChainsForProject()
         {
-			var rootProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.S0038\source\R5T.S0038\R5T.S0038.csproj";
-			var dependencyProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.T0045\source\R5T.T0045.X001\R5T.T0045.X001.csproj";
+			var rootProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.S0041\source\R5T.S0041\R5T.S0041.csproj";
+			var dependencyProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.T0041\source\R5T.T0041.X002\R5T.T0041.X002.csproj";
 
 			var dependencyChains_Inclusive = await Instances.ProjectReferencesOperator.GetDependencyChains_Inclusive(
 				rootProjectFilePath,
@@ -37,9 +41,12 @@ namespace R5T.F0016.Construction
 				lines);
 		}
 
+		/// <summary>
+		/// For each of the recursive project references of a root project, get the projects within the recursive project references of the root project that reference that target project.
+		/// </summary>
 		public async Task GetProjectsReferencingProjectByProjectForAllRecursiveDependencies()
         {
-			var projectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.S0038\source\R5T.S0038\R5T.S0038.csproj";
+			var projectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.S0041\source\R5T.S0041\R5T.S0041.csproj";
 
 			var projectsReferencingProjectByProject = await Instances.ProjectReferencesOperator.GetProjectsReferencingProjectByProjectForAllRecursiveDependencies(
 				projectFilePath,
@@ -61,10 +68,13 @@ namespace R5T.F0016.Construction
 				lines);
 		}
 
+		/// <summary>
+		/// For a given root project, and another target project referenced either directly or recursively by the root project, get the list of projects in the recursive project references of the root project, that reference the target project.
+		/// </summary>
 		public async Task GetProjectsReferencingProjectByProjectForProject()
 		{
-			var rootProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.S0038\source\R5T.S0038\R5T.S0038.csproj";
-			var dependencyProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.D0082\source\R5T.D0082.D001.I001\R5T.D0082.D001.I001.csproj";
+			var rootProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.S0041\source\R5T.S0041\R5T.S0041.csproj";
+			var dependencyProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.T0041\source\R5T.T0041.X002\R5T.T0041.X002.csproj";
 
 			var projectsReferencingProjectByProject = await Instances.ProjectReferencesOperator.GetProjectsReferencingProjectByProjectForAllRecursiveDependencies(
 				rootProjectFilePath,
@@ -83,9 +93,12 @@ namespace R5T.F0016.Construction
 				lines);
 		}
 
+		/// <summary>
+		/// Lists all project references for a project, recursively (i.e. including all projects referenced the projects referenced by the project).
+		/// </summary>
 		public async Task GetRecursiveProjectReferences()
 		{
-			var projectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.S0038\source\R5T.S0038\R5T.S0038.csproj";
+			var projectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.S0041\source\R5T.S0041\R5T.S0041.csproj";
 
 			var projectReferenceFilePaths = await Instances.ProjectReferencesOperator.GetRecursiveProjectReferences(
 				projectFilePath,
