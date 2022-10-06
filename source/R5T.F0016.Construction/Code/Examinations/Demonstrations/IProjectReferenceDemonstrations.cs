@@ -17,16 +17,19 @@ namespace R5T.F0016.Construction
 		/// <returns></returns>
 		public async Task GetDependencyChainsForProject()
         {
-			var rootProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.S0041\source\R5T.S0041\R5T.S0041.csproj";
-			var dependencyProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.T0041\source\R5T.T0041.X002\R5T.T0041.X002.csproj";
+			/// Inputs.
+			var rootProjectFilePath = @"C:\Code\DEV\Git\GitHub\davidcoats\D8S.S0002.Private\source\D8S.S0002\D8S.S0002.csproj";
+			var dependencyProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.Magyar\source\R5T.Magyar\R5T.Magyar.csproj";
 
+			var outputFilePath = @"C:\Temp\Dependency Chains For Project.txt";
+
+			/// Run.
 			var dependencyChains_Inclusive = await Instances.ProjectReferencesOperator.GetDependencyChains_Inclusive(
 				rootProjectFilePath,
 				dependencyProjectFilePath,
 				Instances.ProjectFileOperator.GetDirectProjectReferenceFilePaths);
 
-			var outputFilePath = @"C:\Temp\Dependency Chains For Project.txt";
-
+			// Write output file.
 			var lines = EnumerableHelper.From($"For dependency project:\n{dependencyProjectFilePath}\n")
 				.Append($"Within root project:\n{rootProjectFilePath}\n")
 				.Append(dependencyChains_Inclusive
@@ -39,6 +42,9 @@ namespace R5T.F0016.Construction
 			FileHelper.WriteAllLines_Synchronous(
 				outputFilePath,
 				lines);
+
+			// Open output file.
+			F0033.NotepadPlusPlusOperator.Instance.Open(outputFilePath);
 		}
 
 		/// <summary>
