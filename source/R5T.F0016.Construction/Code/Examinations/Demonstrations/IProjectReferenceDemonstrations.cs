@@ -18,8 +18,8 @@ namespace R5T.F0016.Construction
 		public async Task GetDependencyChainsForProject()
         {
 			/// Inputs.
-			var rootProjectFilePath = @"C:\Code\DEV\Git\GitHub\davidcoats\D8S.S0002.Private\source\D8S.S0002\D8S.S0002.csproj";
-			var dependencyProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.Magyar\source\R5T.Magyar\R5T.Magyar.csproj";
+			var rootProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.C0003\source\R5T.C0003\R5T.C0003.csproj";
+			var dependencyProjectFilePath = @"C:\Code\DEV\Git\GitHub\SafetyCone\R5T.L0019\source\R5T.L0019\R5T.L0019.csproj";
 
 			var outputFilePath = @"C:\Temp\Dependency Chains For Project.txt";
 
