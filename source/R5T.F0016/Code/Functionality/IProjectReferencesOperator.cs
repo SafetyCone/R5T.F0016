@@ -14,6 +14,26 @@ namespace R5T.F0016
     public interface IProjectReferencesOperator : IFunctionalityMarker
     {
         /// <summary>
+        /// For a set of project file paths, get the set of all recursive project references for those projects.
+        /// </summary>
+        public async Task<string[]> GetAllRecursiveProjectReferences(
+            IEnumerable<string> projectFilePaths,
+            GetDirectProjectReferenceDependencies getDirectProjectReferenceDependencies)
+        {
+            var recursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive = await this.GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive(
+                projectFilePaths,
+                getDirectProjectReferenceDependencies);
+
+            var allRecursiveProjectReferences = recursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive
+                .SelectMany(pair => pair.Value)
+                .Distinct()
+                .OrderAlphabetically()
+                .ToArray();
+
+            return allRecursiveProjectReferences;
+        }
+
+        /// <summary>
         /// Get the chains of dependencies leading from the <paramref name="dependencyProjectFilePath"/> to the <paramref name="rootProjectFilePath"/>.
         /// Inclusive in the sense that the descendant project is the first project in the chain.
         /// </summary>

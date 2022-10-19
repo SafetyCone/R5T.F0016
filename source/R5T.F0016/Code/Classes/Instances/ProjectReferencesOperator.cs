@@ -7,7 +7,7 @@ namespace R5T.F0016
     {
         #region Infrastructure
 
-        public static ProjectReferencesOperator Instance { get; } = new();
+        public static IProjectReferencesOperator Instance { get; } = new ProjectReferencesOperator();
 
         private ProjectReferencesOperator()
         {
