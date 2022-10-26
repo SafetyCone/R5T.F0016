@@ -3,6 +3,7 @@
     <ProjectReference Include="..\..\..\R5T.F0020\source\R5T.F0020\R5T.F0020.csproj" />
     <ProjectReference Include="..\..\..\R5T.F0033\source\R5T.F0033\R5T.F0033.csproj" />
     <ProjectReference Include="..\..\..\R5T.T0141\source\R5T.T0141\R5T.T0141.csproj" />
+    <ProjectReference Include="..\R5T.F0016.F001\R5T.F0016.F001.csproj" />
     <ProjectReference Include="..\R5T.F0016\R5T.F0016.csproj" />
   </ItemGroup>
   <PropertyGroup>
