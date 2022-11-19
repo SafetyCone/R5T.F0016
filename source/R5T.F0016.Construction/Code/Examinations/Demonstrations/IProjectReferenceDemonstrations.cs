@@ -3,7 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+using R5T.F0000;
 using R5T.T0141;
+using R5T.Z0000;
 
 
 namespace R5T.F0016.Construction
@@ -30,16 +32,16 @@ namespace R5T.F0016.Construction
 				Instances.ProjectFileOperator.GetDirectProjectReferenceFilePaths);
 
 			// Write output file.
-			var lines = EnumerableHelper.From($"For dependency project:\n{dependencyProjectFilePath}\n")
+			var lines = EnumerableOperator.Instance.From($"For dependency project:\n{dependencyProjectFilePath}\n")
 				.Append($"Within root project:\n{rootProjectFilePath}\n")
 				.Append(dependencyChains_Inclusive
 					.SelectMany(projects => projects
 						// Skip the first since it will be the root project.
 						.SkipFirst()
-						.Append(String.Empty)))
+						.Append(Strings.Instance.Empty)))
 				;
 
-			FileHelper.WriteAllLines_Synchronous(
+			FileOperator.Instance.WriteAllLines_Synchronous(
 				outputFilePath,
 				lines);
 
@@ -62,14 +64,14 @@ namespace R5T.F0016.Construction
 
 			var lines = projectsReferencingProjectByProject
 				.OrderAlphabetically(x => x.Key)
-				.SelectMany(xPair => EnumerableHelper.From($"{xPair.Key}\n")
+				.SelectMany(xPair => EnumerableOperator.Instance.From($"{xPair.Key}\n")
 					.Append(xPair.Value
 						.OrderAlphabetically()
 						.Select(x => $"\t{x}"))
-					.Append(String.Empty))
+					.Append(Strings.Instance.Empty))
 				;
 
-			FileHelper.WriteAllLines_Synchronous(
+			FileOperator.Instance.WriteAllLines_Synchronous(
 				outputFilePath,
 				lines);
 		}
@@ -88,13 +90,13 @@ namespace R5T.F0016.Construction
 
 			var outputFilePath = @"C:\Temp\Projects Referencing Project.txt";
 
-			var lines = EnumerableHelper.From($"For root project:\n{rootProjectFilePath}\n")
+			var lines = EnumerableOperator.Instance.From($"For root project:\n{rootProjectFilePath}\n")
 				.Append($"{dependencyProjectFilePath}\n")
 				.Append(projectsReferencingProjectByProject[dependencyProjectFilePath]
 					.Select(x => $"\t{x}"))
 				;
 
-			FileHelper.WriteAllLines_Synchronous(
+			FileOperator.Instance.WriteAllLines_Synchronous(
 				outputFilePath,
 				lines);
 		}
@@ -112,7 +114,7 @@ namespace R5T.F0016.Construction
 
 			var outputFilePath = @"C:\Temp\Recursive Project References.txt";
 
-			FileHelper.WriteAllLines_Synchronous(
+			FileOperator.Instance.WriteAllLines_Synchronous(
 				outputFilePath,
 				projectReferenceFilePaths
 					.OrderAlphabetically());

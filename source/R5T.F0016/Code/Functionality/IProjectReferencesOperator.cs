@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using R5T.Magyar;
-
+using R5T.F0000;
 using R5T.T0132;
 
 
@@ -43,7 +42,7 @@ namespace R5T.F0016
             GetDirectProjectReferenceDependencies getDirectProjectReferenceDependencies)
         {
             var directProjectReferencesByProject_Exclusive = await this.GetDirectProjectReferencesForAllRecursiveProjectReferences_Exclusive(
-                EnumerableHelper.From(rootProjectFilePath),
+                EnumerableOperator.Instance.From(rootProjectFilePath),
                 getDirectProjectReferenceDependencies);
 
             return this.GetDependencyChains_Inclusive(
@@ -136,7 +135,7 @@ namespace R5T.F0016
            GetDirectProjectReferenceDependencies getDirectProjectReferenceDependencies)
         {
             var directProjectReferencesByProject_Exclusive = await this.GetDirectProjectReferencesForAllRecursiveProjectReferences_Exclusive(
-                EnumerableHelper.From(projectFilePath),
+                EnumerableOperator.Instance.From(projectFilePath),
                 getDirectProjectReferenceDependencies);
 
             var output = this.GetProjectsReferencingProjectByProject(directProjectReferencesByProject_Exclusive);
@@ -181,7 +180,7 @@ namespace R5T.F0016
                 .Distinct()
                 .OrderAlphabetically_OnlyIfDebug()
                 // Evaluate now so we know what we are working with.
-                .Evaluate();
+                .Now();
 
             return projectFilePaths;
         }
@@ -279,6 +278,18 @@ namespace R5T.F0016
                 projectFilePaths,
                 getDirectProjectReferenceDependencies);
 
+            var output = this.GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive(
+                projectFilePaths,
+                directProjectReferencesByProjectFilePath);
+
+            return output;
+        }
+
+        /// <inheritdoc cref="GetDirectProjectReferencesForAllRecursiveProjectReferences_Exclusive(IEnumerable{string}, GetDirectProjectReferenceDependencies)"/>
+        public Dictionary<string, string[]> GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive(
+            IEnumerable<string> projectFilePaths,
+            Dictionary<string, string[]> directProjectReferencesByProjectFilePath)
+        {
             var output = new Dictionary<string, string[]>();
 
             foreach (var pair in directProjectReferencesByProjectFilePath)
@@ -300,6 +311,17 @@ namespace R5T.F0016
                     }
                 }
             }
+
+            return output;
+        }
+
+        /// <inheritdoc cref="GetDirectProjectReferencesForAllRecursiveProjectReferences_Exclusive(IEnumerable{string}, GetDirectProjectReferenceDependencies)"/>
+        public Dictionary<string, string[]> GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive(
+            Dictionary<string, string[]> directProjectReferencesByProjectFilePath)
+        {
+            var output = this.GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive(
+                directProjectReferencesByProjectFilePath.Keys,
+                directProjectReferencesByProjectFilePath);
 
             return output;
         }
@@ -332,6 +354,7 @@ namespace R5T.F0016
 
         /// <summary>
         /// Get recursive project references for a project file, using the given direct project reference sets and recursive project reference sets, while filling-in the recursive project reference sets for any dependencies.
+        /// Note: returns recursive project references in reverse-dependency order (most dependent to least dependent).
         /// </summary>
         public string[] GetRecursiveProjectReferences_Exclusive(
             string projectFilePath,
@@ -340,8 +363,10 @@ namespace R5T.F0016
         {
             var directProjectReferences = directProjectReferences_Exclusive[projectFilePath];
 
-            var recursiveProjectReferences = new HashSet<string>();
+            // Start with the direct project references.
+            var recursiveProjectReferences = new HashSet<string>(directProjectReferences);
 
+            // Then for each direct project refernce
             foreach (var projectReferenceFilePath in directProjectReferences)
             {
                 var alreadyProcessed = recursiveProjectReferences_Exclusive.ContainsKey(projectReferenceFilePath);
@@ -376,7 +401,7 @@ namespace R5T.F0016
             GetDirectProjectReferenceDependencies getDirectProjectReferenceDependencies)
         {
             var directProjectReferencesOfAllRecursiveProjectReferences = await this.GetDirectProjectReferencesForAllRecursiveProjectReferences_Exclusive(
-                EnumerableHelper.From(projectFilePath),
+                EnumerableOperator.Instance.From(projectFilePath),
                 getDirectProjectReferenceDependencies);
 
             var output = directProjectReferencesOfAllRecursiveProjectReferences.Keys
@@ -461,7 +486,7 @@ namespace R5T.F0016
             // Get the complement in project references' recursive dependencies set of the project file's recusive dependencies set.
             var newProjectReferencesToAdd = projectReferencesRecursiveDependencies.Except(projectRecursiveProjectReferences)
                 .OrderAlphabetically_OnlyIfDebug()
-                .Evaluate();
+                .Now();
 
             return newProjectReferencesToAdd;
         }
