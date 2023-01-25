@@ -131,7 +131,27 @@ namespace R5T.F0016.F001
         public async Task<Dictionary<string, string[]>> GetRecursiveProjectReferencesForAllRecursiveProjectReferences(
             IEnumerable<string> projectFilePaths)
         {
-            var output = await this.GetRecursiveProjectReferencesForAllRecursiveProjectReferences(
+            var output = await this.GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive(projectFilePaths);
+            return output;
+        }
+
+        /// <summary>
+        /// Exclusive.
+        /// </summary>
+        public async Task<Dictionary<string, string[]>> GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive(
+            IEnumerable<string> projectFilePaths)
+        {
+            var output = await this.GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive(
+                projectFilePaths,
+                Instances.ProjectFileOperator.GetDirectProjectReferenceFilePaths);
+
+            return output;
+        }
+
+        public async Task<Dictionary<string, string[]>> GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive(
+            IEnumerable<string> projectFilePaths)
+        {
+            var output = await this.GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive(
                 projectFilePaths,
                 Instances.ProjectFileOperator.GetDirectProjectReferenceFilePaths);
 
