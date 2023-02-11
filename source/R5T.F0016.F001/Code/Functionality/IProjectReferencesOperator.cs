@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -169,15 +170,26 @@ namespace R5T.F0016.F001
 
         public async Task<bool> HasAnyRecursiveCOMReferences_Inclusive(string projectFilePath)
         {
-            var allRecursiveProjectReferences = await this.GetAllRecursiveProjectReferences(
+            var allRecursiveProjectReferences = await this.GetAllRecursiveProjectReferences_Inclusive(
                 EnumerableOperator.Instance.From(projectFilePath));
 
             foreach (var referenceProjectFilePath in allRecursiveProjectReferences)
             {
-                var hasAnyCOMReference = Instances.ProjectFileOperator.HasAnyCOMReferences(referenceProjectFilePath);
-                if (hasAnyCOMReference)
+                try
                 {
-                    return true;
+                    var hasAnyCOMReference = Instances.ProjectFileOperator.HasAnyCOMReferences(referenceProjectFilePath);
+                    if (hasAnyCOMReference)
+                    {
+                        return true;
+                    }
+                }
+                catch (FileNotFoundException)
+                {
+                    continue;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    continue;
                 }
             }
 

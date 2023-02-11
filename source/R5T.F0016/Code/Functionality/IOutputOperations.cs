@@ -5,7 +5,6 @@ using System.Linq;
 
 using R5T.F0000;
 using R5T.T0132;
-using R5T.Z0000;
 
 
 namespace R5T.F0016
@@ -25,7 +24,7 @@ namespace R5T.F0016
 									EnumerableOperator.Instance.From(
 										Texts.Instance.NoDependencies))
 								.Select(StringOperator.Instance.Indent))
-							.Append(Strings.Instance.Empty)),
+							.Append(Instances.Strings.Empty)),
 					EnumerableOperator.Instance.From(
 						Texts.Instance.NoProjectReferences))
 				;
