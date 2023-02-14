@@ -38,7 +38,7 @@ namespace R5T.F0016.Construction
 					.SelectMany(projects => projects
 						// Skip the first since it will be the root project.
 						.SkipFirst()
-						.Append(Strings.Instance.Empty)))
+						.Append(Instances.Strings.Empty)))
 				;
 
 			FileOperator.Instance.WriteAllLines_Synchronous(
@@ -68,7 +68,7 @@ namespace R5T.F0016.Construction
 					.Append(xPair.Value
 						.OrderAlphabetically()
 						.Select(x => $"\t{x}"))
-					.Append(Strings.Instance.Empty))
+					.Append(Instances.Strings.Empty))
 				;
 
 			FileOperator.Instance.WriteAllLines_Synchronous(

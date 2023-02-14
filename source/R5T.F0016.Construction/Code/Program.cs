@@ -17,7 +17,8 @@ namespace R5T.F0016.Construction
             //await Try.Instance.OutputRecursiveProjectReferencesByProject();
             //await Try.Instance.OutputDirectProjectReferencesForAllRecursiveProjects();
             //await Try.Instance.IdentifyExtraneousProjectReferencesByProject();
-            await Try.Instance.RemoveExtraneousProjectReferencesByProject();
+            //await Try.Instance.RemoveExtraneousProjectReferencesByProject();
+            await Try.Instance.GetAdditionalRecursiveDependencies();
         }
     }
 }

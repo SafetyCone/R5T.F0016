@@ -12,6 +12,86 @@ namespace R5T.F0016
     [FunctionalityMarker]
     public interface IProjectReferencesOperator : IFunctionalityMarker
     {
+        private static Internal.IProjectReferencesOperator Internal => F0016.Internal.ProjectReferencesOperator.Instance;
+
+
+        /// <summary>
+        /// Given an existing set of recursive project references by project, determine the recursive project references for new projects and add them to the set.
+        /// Recursive project references are determined using both the existing set of recursive project references, and recursively querying the direct project references for any projects not already in the set.
+        /// The function is idempotent in that there is no error if projects in the list of projects to add that already exist in the recursive set. These projects are not re-added.
+        /// </summary>
+        /// <param name="recursiveProjectReferencesByProject_Exclusive">The set of existing recursive project references for each project file path, exclusive in the </param>
+        /// <param name="projectFilePaths">The set of project file paths to add to the existing recursive project references set by computing their recursive project references.</param>
+        /// <returns>The set of project file paths that were actually added to the recursive refernces set (those project that did not already exist).</returns>
+        public async Task<string[]> AddRecursiveProjectReferences_Exclusive_Idempotent(
+            IDictionary<string, string[]> recursiveProjectReferencesByProject_Exclusive,
+            GetDirectProjectReferenceDependencies getDirectProjectReferenceDependencies,
+            IEnumerable<string> projectFilePaths)
+        {
+            var initialProjects = recursiveProjectReferencesByProject_Exclusive.Keys.Now();
+
+            //// Compute the set of project file paths to add before doing anything (as opposed to checking if they already exist in the loop below).
+            //// Since some of the projects can be recursive references of other of the projects, and if we did not compute this initially the referenced projects would already exist, and thus not be recognized as being added.
+            //var projectFilePathsToAdd = projectFilePaths
+            //    .Except(recursiveProjectReferencesByProject_Exclusive.Keys)
+            //    .Now();
+
+            foreach (var projectFilePath in projectFilePaths)
+            {
+                var projectFilePathAlreadyHandled = recursiveProjectReferencesByProject_Exclusive.ContainsKey(projectFilePath);
+                if (!projectFilePathAlreadyHandled)
+                {
+                    var directProjectReferencesOfUnhandledRecursiveProjectReferences = new Dictionary<string, string[]>();
+
+                    await Internal.AccumulateDirectProjectReferencesOfUnhandledRecursiveProjectReferences_Unchecked(
+                        projectFilePath,
+                        directProjectReferencesOfUnhandledRecursiveProjectReferences,
+                        recursiveProjectReferencesByProject_Exclusive,
+                        getDirectProjectReferenceDependencies);
+
+                    foreach (var unhandledProjectFilePath in directProjectReferencesOfUnhandledRecursiveProjectReferences.Keys)
+                    {
+                        // Check if the unhandled project file path is still unhandled (it might be a dependency of a prior unhandled project, in which case it got handled).
+                        var isNowHandled = recursiveProjectReferencesByProject_Exclusive.ContainsKey(unhandledProjectFilePath);
+                        if(!isNowHandled)
+                        {
+                            var recursiveProjectReferences = new HashSet<string>();
+
+                            Internal.AccumulateAndAddRecursiveProjectFilePaths_Exclusive(
+                                unhandledProjectFilePath,
+                                recursiveProjectReferences,
+                                directProjectReferencesOfUnhandledRecursiveProjectReferences,
+                                recursiveProjectReferencesByProject_Exclusive);
+
+                            recursiveProjectReferencesByProject_Exclusive.Add(
+                                unhandledProjectFilePath,
+                                recursiveProjectReferences.ToArray());
+                        }
+                    }
+                }
+            }
+
+            var finalProjects = recursiveProjectReferencesByProject_Exclusive.Keys;
+
+            var projectsAdded = finalProjects
+                .Except(initialProjects)
+                .Now();
+
+            return projectsAdded;
+        }
+
+        /// <inheritdoc cref="AddRecursiveProjectReferences_Exclusive_Idempotent(IDictionary{string, string[]}, GetDirectProjectReferenceDependencies, IEnumerable{string})"/>
+        public Task<string[]> AddRecursiveProjectReferences_Exclusive_Idempotent(
+            IDictionary<string, string[]> recursiveProjectReferencesByProject_Exclusive,
+            GetDirectProjectReferenceDependencies getDirectProjectReferenceDependencies,
+            params string[] projectFilePaths)
+        {
+            return this.AddRecursiveProjectReferences_Exclusive_Idempotent(
+                recursiveProjectReferencesByProject_Exclusive,
+                getDirectProjectReferenceDependencies,
+                projectFilePaths.AsEnumerable());
+        }
+
         /// <summary>
         /// For a set of project file paths, get the set of all recursive project references for those projects.
         /// </summary>
@@ -169,25 +249,8 @@ namespace R5T.F0016
         }
 
         /// <summary>
-        /// Preprocess by removing duplicates and evaluating the enumerable.
-        /// Additionally, order the file paths alphabetically to aid debugging.
-        /// </summary>
-        public string[] PreprocessProjectFilePaths(
-            IEnumerable<string> unPreprocessedProjectFilePaths)
-        {
-            var projectFilePaths = unPreprocessedProjectFilePaths
-                // Make distinct to avoid double-work.
-                .Distinct()
-                .OrderAlphabetically_OnlyIfDebug()
-                // Evaluate now so we know what we are working with.
-                .Now();
-
-            return projectFilePaths;
-        }
-
-        /// <summary>
         /// Gets the direct project references for all project references in the recursive project references set of the specified project file paths.
-        /// Exclusive in the sense that the direct dependencies set for each project does not contain the project itself.
+        /// Exclusive in the sense that the set of direct dependencies for each project does not contain the project itself (which is available as the key in the output dictionary).
         /// </summary>
         public Task<Dictionary<string, string[]>> GetDirectProjectReferencesForAllRecursiveProjectReferences_Exclusive(
             IEnumerable<string> projectFilePaths,
@@ -197,7 +260,7 @@ namespace R5T.F0016
             async Task<Dictionary<string, string[]>> Internal(
                 IEnumerable<string> unPreprocessedProjectFilePaths)
             {
-                var projectFilePaths = this.PreprocessProjectFilePaths(unPreprocessedProjectFilePaths);
+                var projectFilePaths = IProjectReferencesOperator.Internal.PreprocessProjectFilePaths(unPreprocessedProjectFilePaths);
 
                 var output = new Dictionary<string, string[]>();
 
@@ -485,7 +548,7 @@ namespace R5T.F0016
             IEnumerable<string> projectReferenceFilePaths,
             GetDirectProjectReferenceDependencies getDirectProjectReferenceDependencies)
         {
-            var projectReferenceFilePaths_Preprocessed = this.PreprocessProjectFilePaths(projectReferenceFilePaths);
+            var projectReferenceFilePaths_Preprocessed = Internal.PreprocessProjectFilePaths(projectReferenceFilePaths);
 
             // Get inclusive, recursive, references by reference file path.
             var recursiveProjectReferences = await this.GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive(

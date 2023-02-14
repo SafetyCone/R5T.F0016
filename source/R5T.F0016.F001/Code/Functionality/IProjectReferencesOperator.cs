@@ -14,6 +14,27 @@ namespace R5T.F0016.F001
 	public partial interface IProjectReferencesOperator : IFunctionalityMarker,
         F0016.IProjectReferencesOperator
 	{
+        /// <inheritdoc cref="F0016.IProjectReferencesOperator.AddRecursiveProjectReferences_Exclusive_Idempotent(IDictionary{string, string[]}, GetDirectProjectReferenceDependencies, IEnumerable{string})"/>
+        public Task<string[]> AddRecursiveProjectReferences_Exclusive_Idempotent(
+            IDictionary<string, string[]> recursiveProjectReferencesByProject_Exclusive,
+            IEnumerable<string> projectFilePaths)
+        {
+            return this.AddRecursiveProjectReferences_Exclusive_Idempotent(
+                recursiveProjectReferencesByProject_Exclusive,
+                Instances.ProjectFileOperator.GetDirectProjectReferenceFilePaths,
+                projectFilePaths);
+        }
+
+        /// <inheritdoc cref="AddRecursiveProjectReferences_Exclusive_Idempotent(IDictionary{string, string[]}, IEnumerable{string})"/>
+        public Task<string[]> AddRecursiveProjectReferences_Exclusive_Idempotent(
+            IDictionary<string, string[]> recursiveProjectReferencesByProject_Exclusive,
+            params string[] projectFilePaths)
+        {
+            return this.AddRecursiveProjectReferences_Exclusive_Idempotent(
+                recursiveProjectReferencesByProject_Exclusive,
+                projectFilePaths.AsEnumerable());
+        }
+
         /// <summary>
         /// Chooses <see cref="GetAllRecursiveProjectReferences_Exclusive(IEnumerable{string})"/> as the default.
         /// <para><inheritdoc cref="GetAllRecursiveProjectReferences_Exclusive(IEnumerable{string})" path="/summary"/></para>
