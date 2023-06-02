@@ -36,6 +36,41 @@ namespace R5T.F0016.F001
         }
 
         /// <summary>
+        /// Ensures that a project has the required project file references.
+        /// </summary>
+        /// <returns>
+        /// Returns the project file reference file paths that were actually added (i.e. did not already exist among the project's recursive project file references).
+        /// </returns>
+        public async Task<string[]> Ensure_HasProjectReferences(
+            string projectFilePath,
+            IEnumerable<string> projectReferenceFilePaths)
+        {
+            var projectFileReferencesToAdd = await this.GetProjectReferencesToAdd(
+                projectFilePath,
+                projectReferenceFilePaths);
+
+            var projectModificationRequired = projectFileReferencesToAdd.Any();
+            if (projectModificationRequired)
+            {
+                await Instances.ProjectFileOperator.AddProjectReferences_Idempotent(
+                    projectFilePath,
+                    projectFileReferencesToAdd);
+            }
+
+            return projectFileReferencesToAdd;
+        }
+
+        /// <inheritdoc cref="Ensure_HasProjectReferences(string, IEnumerable{string})"/>
+        public Task<string[]> Ensure_HasProjectReferences(
+            string projectFilePath,
+            params string[] projectReferenceFilePaths)
+        {
+            return this.Ensure_HasProjectReferences(
+                projectFilePath,
+                projectReferenceFilePaths.AsEnumerable());
+        }
+
+        /// <summary>
         /// Chooses <see cref="GetAllRecursiveProjectReferences_Exclusive(IEnumerable{string})"/> as the default.
         /// <para><inheritdoc cref="GetAllRecursiveProjectReferences_Exclusive(IEnumerable{string})" path="/summary"/></para>
         /// </summary>
@@ -148,6 +183,16 @@ namespace R5T.F0016.F001
             }
 
             return output;
+        }
+
+        public Task<string[]> GetProjectReferencesToAdd(
+            string projectFilePath,
+            IEnumerable<string> projectReferenceFilePaths)
+        {
+            return this.GetProjectReferencesToAdd(
+                projectFilePath,
+                projectReferenceFilePaths,
+                Instances.ProjectFileOperator.GetDirectProjectReferenceFilePaths);
         }
 
         public async Task<Dictionary<string, string[]>> GetRecursiveProjectReferencesForAllRecursiveProjectReferences(
