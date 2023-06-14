@@ -79,6 +79,12 @@ namespace R5T.F0016.F001
             return this.GetAllRecursiveProjectReferences_Exclusive(projectFilePaths);
         }
 
+        /// <inheritdoc cref="GetAllRecursiveProjectReferences(IEnumerable{string})"/>
+        public Task<string[]> GetAllRecursiveProjectReferences(params string[] projectFilePaths)
+        {
+            return this.GetAllRecursiveProjectReferences_Exclusive(projectFilePaths.AsEnumerable());
+        }
+
         /// <summary>
         /// For a set of project file paths, get the set of all recursive project references for those projects, but do not include the input project file paths (unless some are recursive project references of others, in which case they will be included).
         /// </summary>
@@ -87,6 +93,21 @@ namespace R5T.F0016.F001
             return this.GetAllRecursiveProjectReferences(
                 projectFilePaths,
                 Instances.ProjectFileOperator.GetDirectProjectReferenceFilePaths);
+        }
+
+        /// <inheritdoc cref="F0016.IProjectReferencesOperator.Get_RecursiveProjectReferences_InDependencyOrder(IEnumerable{string}, GetDirectProjectReferenceDependencies)"/>
+        public Task<string[]> Get_RecursiveProjectReferences_InDependencyOrder(IEnumerable<string> projectFilePaths)
+        {
+            return this.Get_RecursiveProjectReferences_InDependencyOrder(
+                projectFilePaths,
+                Instances.ProjectFileOperator.GetDirectProjectReferenceFilePaths);
+        }
+
+        /// <inheritdoc cref="Get_RecursiveProjectReferences_InDependencyOrder(IEnumerable{string})"/>
+        public Task<string[]> Get_RecursiveProjectReferences_InDependencyOrder(params string[] projectFilePaths)
+        {
+            return this.Get_RecursiveProjectReferences_InDependencyOrder(
+                projectFilePaths.AsEnumerable());
         }
 
         /// <summary>
@@ -182,6 +203,38 @@ namespace R5T.F0016.F001
                 output.Add(currentProjectFilePath, extraneousDirectDependencies);
             }
 
+            return output;
+        }
+
+        public async Task<string[]> Get_TopLevelProjectReferences(
+            IEnumerable<string> projectFilePaths)
+        {
+            var directDependenciesForAllRecursiveProjects = await this.GetDirectProjectReferencesForAllRecursiveProjectReferences_Exclusive(
+                projectFilePaths);
+
+            var recursiveDependenciesForAllRecursiveDependencies = this.GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive(
+                directDependenciesForAllRecursiveProjects);
+
+            var outputProjectFilePaths = new HashSet<string>(projectFilePaths);
+
+            var recursiveDependenciesHashed = recursiveDependenciesForAllRecursiveDependencies
+                .ToDictionary(
+                    pair => pair.Key,
+                    pair => new HashSet<string>(pair.Value));
+
+            // For each project file path, if it is present in the recursive dependencies of any of the other project file paths, then it is not a top-level project file path.
+            foreach (var projectFilePath in projectFilePaths)
+            {
+                foreach (var pair in recursiveDependenciesHashed)
+                {
+                    if (pair.Value.Contains(projectFilePath))
+                    {
+                        outputProjectFilePaths.Remove(projectFilePath);
+                    }
+                }
+            }
+
+            var output = outputProjectFilePaths.ToArray();
             return output;
         }
 

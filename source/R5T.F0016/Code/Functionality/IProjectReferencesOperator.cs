@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using System.Threading.Tasks.Sources;
 using R5T.F0000;
 using R5T.T0132;
 
@@ -90,6 +90,43 @@ namespace R5T.F0016
                 recursiveProjectReferencesByProject_Exclusive,
                 getDirectProjectReferenceDependencies,
                 projectFilePaths.AsEnumerable());
+        }
+
+        /// <summary>
+        /// For a set of project file paths, get the set of recursive project references for those projects.
+        /// Return the recursive project references in ascending dependency order (from least dependent to most dependent).
+        /// <para>Note: output is exclusive of inputs (output does not contain inputs).</para>
+        /// </summary>
+        public async Task<string[]> Get_RecursiveProjectReferences_InDependencyOrder(
+            IEnumerable<string> projectFilePaths,
+            GetDirectProjectReferenceDependencies getDirectProjectReferenceDependencies)
+        {
+            var recursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive = await this.GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive(
+                projectFilePaths,
+                getDirectProjectReferenceDependencies);
+
+            var recursiveProjectFilePaths = recursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive.Keys
+                .OrderBy(
+                    x => x,
+                    new MethodBasedComparer<string>(
+                        (projectFilePath1, projectFilePath2) =>
+                        {
+                            var recursiveDependenciesof1 = recursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive[projectFilePath1];
+
+                            var recursiveDependenciesof1Contains2 = recursiveDependenciesof1.Contains(projectFilePath2);
+                            if(recursiveDependenciesof1Contains2)
+                            {
+                                return Instances.ComparisonResults.GreaterThan;
+                            }
+                            else
+                            {
+                                // Return equal-to to preserve order.
+                                return Instances.ComparisonResults.EqualTo;
+                            }
+                        }))
+                .ToArray();
+
+            return recursiveProjectFilePaths;
         }
 
         /// <summary>
