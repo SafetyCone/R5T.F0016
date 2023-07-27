@@ -74,7 +74,8 @@ namespace R5T.F0016.F001
         /// Chooses <see cref="GetAllRecursiveProjectReferences_Exclusive(IEnumerable{string})"/> as the default.
         /// <para><inheritdoc cref="GetAllRecursiveProjectReferences_Exclusive(IEnumerable{string})" path="/summary"/></para>
         /// </summary>
-        public Task<string[]> GetAllRecursiveProjectReferences(IEnumerable<string> projectFilePaths)
+        public Task<string[]> GetAllRecursiveProjectReferences(
+            IEnumerable<string> projectFilePaths)
         {
             return this.GetAllRecursiveProjectReferences_Exclusive(projectFilePaths);
         }
