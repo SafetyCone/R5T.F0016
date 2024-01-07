@@ -47,7 +47,7 @@ namespace R5T.F0016
 			Dictionary<string, string[]> projectReferencesByProjectFilePath,
 			string textFilePath)
         {
-			using var writer = StreamWriterOperator.Instance.NewWrite(textFilePath);
+			using var writer = StreamWriterOperator.Instance.New_Write(textFilePath);
 
 			this.WriteToOutput_Synchronous(
 				projectReferencesByProjectFilePath,
