@@ -97,21 +97,21 @@ namespace R5T.F0016
         /// Return the recursive project references in ascending dependency order (from least dependent to most dependent).
         /// <para>Note: output is exclusive of inputs (output does not contain inputs).</para>
         /// </summary>
-        public async Task<string[]> Get_RecursiveProjectReferences_InDependencyOrder(
+        public async Task<string[]> Get_RecursiveProjectReferences_InDependencyOrder_Exclusive(
             IEnumerable<string> projectFilePaths,
             GetDirectProjectReferenceDependencies getDirectProjectReferenceDependencies)
         {
-            var recursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive = await this.GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive(
+            var recursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive = await this.GetRecursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive(
                 projectFilePaths,
                 getDirectProjectReferenceDependencies);
 
-            var recursiveProjectFilePaths = recursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive.Keys
+            var recursiveProjectFilePaths = recursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive.Keys
                 .OrderBy(
                     x => x,
                     new MethodBasedComparer<string>(
                         (projectFilePath1, projectFilePath2) =>
                         {
-                            var recursiveDependenciesof1 = recursiveProjectReferencesForAllRecursiveProjectReferences_Inclusive[projectFilePath1];
+                            var recursiveDependenciesof1 = recursiveProjectReferencesForAllRecursiveProjectReferences_Exclusive[projectFilePath1];
 
                             var recursiveDependenciesof1Contains2 = recursiveDependenciesof1.Contains(projectFilePath2);
                             if(recursiveDependenciesof1Contains2)

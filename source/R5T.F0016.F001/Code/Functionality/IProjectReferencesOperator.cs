@@ -97,25 +97,25 @@ namespace R5T.F0016.F001
                 Instances.ProjectFileOperator.GetDirectProjectReferenceFilePaths);
         }
 
-        /// <inheritdoc cref="F0016.IProjectReferencesOperator.Get_RecursiveProjectReferences_InDependencyOrder(IEnumerable{string}, GetDirectProjectReferenceDependencies)"/>
-        public Task<string[]> Get_RecursiveProjectReferences_InDependencyOrder(IEnumerable<string> projectFilePaths)
+        /// <inheritdoc cref="F0016.IProjectReferencesOperator.Get_RecursiveProjectReferences_InDependencyOrder_Exclusive(IEnumerable{string}, GetDirectProjectReferenceDependencies)"/>
+        public Task<string[]> Get_RecursiveProjectReferences_InDependencyOrder_Exclusive(IEnumerable<string> projectFilePaths)
         {
-            return this.Get_RecursiveProjectReferences_InDependencyOrder(
+            return this.Get_RecursiveProjectReferences_InDependencyOrder_Exclusive(
                 projectFilePaths,
                 Instances.ProjectFileOperator.GetDirectProjectReferenceFilePaths);
         }
 
-        /// <inheritdoc cref="Get_RecursiveProjectReferences_InDependencyOrder(IEnumerable{string})"/>
-        public Task<string[]> Get_RecursiveProjectReferences_InDependencyOrder(params string[] projectFilePaths)
+        /// <inheritdoc cref="Get_RecursiveProjectReferences_InDependencyOrder_Exclusive(IEnumerable{string})"/>
+        public Task<string[]> Get_RecursiveProjectReferences_InDependencyOrder_Exclusive(params string[] projectFilePaths)
         {
-            return this.Get_RecursiveProjectReferences_InDependencyOrder(
+            return this.Get_RecursiveProjectReferences_InDependencyOrder_Exclusive(
                 projectFilePaths.AsEnumerable());
         }
 
         /// <summary>
         /// For a set of project file paths, get the set of all recursive project references for those projects.
         /// </summary>
-        public async Task<string[]> GetAllRecursiveProjectReferences_Inclusive(IEnumerable<string> projectFilePaths)
+        public async Task<string[]> GetAllRecursiveProjectReferences_InAlphabeticalOrder_Inclusive(IEnumerable<string> projectFilePaths)
         {
             var exclusiveProjectReferences = await this.GetAllRecursiveProjectReferences_Exclusive(projectFilePaths);
 
@@ -123,16 +123,16 @@ namespace R5T.F0016.F001
                 .Append(projectFilePaths)
                 .Distinct()
                 .OrderAlphabetically()
-                .Now();
+                .ToArray();
 
             return output;
         }
 
-        public Task<string[]> GetAllRecursiveProjectReferences_Inclusive(string projectFilePath)
+        public Task<string[]> GetAllRecursiveProjectReferences_InAlphabeticalOrder_Inclusive(string projectFilePath)
         {
             var projectFilePaths = EnumerableOperator.Instance.From(projectFilePath);
 
-            return this.GetAllRecursiveProjectReferences_Inclusive(
+            return this.GetAllRecursiveProjectReferences_InAlphabeticalOrder_Inclusive(
                 projectFilePaths);
         }
 
@@ -291,7 +291,7 @@ namespace R5T.F0016.F001
 
         public async Task<bool> HasAnyRecursiveCOMReferences_Inclusive(string projectFilePath)
         {
-            var allRecursiveProjectReferences = await this.GetAllRecursiveProjectReferences_Inclusive(
+            var allRecursiveProjectReferences = await this.GetAllRecursiveProjectReferences_InAlphabeticalOrder_Inclusive(
                 EnumerableOperator.Instance.From(projectFilePath));
 
             foreach (var referenceProjectFilePath in allRecursiveProjectReferences)

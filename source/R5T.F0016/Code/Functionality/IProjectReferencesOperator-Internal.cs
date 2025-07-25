@@ -23,7 +23,7 @@ namespace R5T.F0016.Internal
                 .Distinct()
                 .OrderAlphabetically_OnlyIfDebug()
                 // Evaluate now so we know what we are working with.
-                .Now();
+                .ToArray();
 
             return projectFilePaths;
         }
