@@ -120,7 +120,7 @@ namespace R5T.F0016.F001
             var exclusiveProjectReferences = await this.GetAllRecursiveProjectReferences_Exclusive(projectFilePaths);
 
             var output = exclusiveProjectReferences
-                .Append(projectFilePaths)
+                .Append_Many(projectFilePaths)
                 .Distinct()
                 .OrderAlphabetically()
                 .ToArray();

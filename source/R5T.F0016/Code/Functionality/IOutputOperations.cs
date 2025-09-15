@@ -18,7 +18,7 @@ namespace R5T.F0016
 				.AppendIf(projectReferencesByProjectFilePath.Any(),
 					projectReferencesByProjectFilePath
 						.SelectMany(pair => EnumerableOperator.Instance.From(pair.Key)
-							.Append(EnumerableOperator.Instance.Empty<string>()
+							.Append_Many(EnumerableOperator.Instance.Empty<string>()
 								.AppendIf(pair.Value.Any(),
 									pair.Value,
 									EnumerableOperator.Instance.From(
